@@ -4,7 +4,7 @@
  * This class shall not be modified in any form. 
  */
 
-package project2;
+
 
 public class JointTuple extends Tuple{
 	/**

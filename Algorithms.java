@@ -105,24 +105,6 @@ public class Algorithms {
 		return numIO;
 	}
 
-	private int getTotalBlocks(ArrayList<ArrayList<Block>> diskBuckets){
-		int num = 0;
-		for(ArrayList<Block> bucket: diskBuckets){
-			num += bucket.size();
-		}
-		return num;
-	}
-
-	private int getTotalTuples(ArrayList<ArrayList<Block>> diskBuckets){
-		int num = 0;
-		for(ArrayList<Block> bucket: diskBuckets){
-			for(Block block: bucket){
-				num += block.tupleLst.size();
-			}
-		}
-		return num;
-	}
-
 	private void initMemBuffers(Block[] memBuffers, int size){
 		for(int i = 0; i < size; i++)
 			memBuffers[i] = new Block();
@@ -165,7 +147,21 @@ public class Algorithms {
 				numIO ++;
 			}
 		}
-		// System.out.println("Total Number of tuples in buckets: " + getTotalTuples(diskBuckets));
+		// print statistics
+		int maxSize = 0, minSize = Integer.MAX_VALUE, averagedSize = 0;
+		for(ArrayList<Block> bucket: diskBuckets){
+			if(bucket.size() > maxSize){
+				maxSize = bucket.size();
+			} else if(bucket.size() < minSize){
+				minSize = bucket.size();
+			}
+			averagedSize += bucket.size();
+		}
+		averagedSize /= (M-1);
+		System.out.println("Number of buckets generated: " + String.valueOf(M-1));
+		System.out.println("Maximum size of buckets: " + maxSize);
+		System.out.println("Minimun size of buckets: " + minSize);
+		System.out.println("Averaged size of buckets: " + averagedSize);
 		return numIO;
 	}
 

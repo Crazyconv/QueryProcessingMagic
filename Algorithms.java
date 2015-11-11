@@ -203,6 +203,12 @@ public class Algorithms {
 		}
 		return totalBlocks;
 	}
+
+	private int getHashJoinTheoreticalIO(Relation relR, Relation relS, int M, int blockFactor) {
+		return (getTotalBlocksAllBuckets(relR, M, blockFactor) + 
+			getTotalBlocksAllBuckets(relS, M, blockFactor)) * 2 + 
+			relR.getNumBlocks() + relS.getNumBlocks();
+	}
 	
 	/**
 	 * Join relations relR and relS using Setting.memorySize buffers of memory to produce the result relation relRS
@@ -303,9 +309,7 @@ public class Algorithms {
 		numTuples = relRS.getNumTuples();
 		System.out.println("Relation RelRS contains " + numTuples + " tuples.");
 
-		int theoreticalIO = (algo.getTotalBlocksAllBuckets(relR, Setting.memorySize, Setting.blockFactor) + 
-			algo.getTotalBlocksAllBuckets(relS, Setting.memorySize, Setting.blockFactor)) * 2 + 
-			relR.getNumBlocks() + relS.getNumBlocks();
+		int theoreticalIO = algo.getHashJoinTheoreticalIO(relR, relS, Setting.memorySize, Setting.blockFactor);
 
 		if(theoreticalIO == numIO){
 			System.out.println("numIO correct!");

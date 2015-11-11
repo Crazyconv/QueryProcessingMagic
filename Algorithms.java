@@ -105,6 +105,14 @@ public class Algorithms {
 		return numIO;
 	}
 
+	private int getTotalBlocks(ArrayList<ArrayList<Block>> diskBuckets){
+		int num = 0;
+		for(ArrayList<Block> bucket: diskBuckets){
+			num += bucket.size();
+		}
+		return num;
+	}
+
 	private int getTotalTuples(ArrayList<ArrayList<Block>> diskBuckets){
 		int num = 0;
 		for(ArrayList<Block> bucket: diskBuckets){
@@ -169,6 +177,31 @@ public class Algorithms {
 			}
 		}
 		return maxSize;
+	}
+
+	private int getTotalBlocksAllBuckets(Relation r, int M, int blockFactor){
+		ArrayList<ArrayList<Tuple>> tuples = new ArrayList<ArrayList<Tuple>>();
+		for(int i = 0; i < M - 1; i++){
+			tuples.add(new ArrayList<Tuple>());
+		}
+
+		Block buffer;
+		Relation.RelationLoader rLoader = r.getRelationLoader();
+		rLoader.reset();
+		while(rLoader.hasNextBlock()){
+			// load next block to the last memory buffer
+			buffer = rLoader.loadNextBlocks(1)[0];
+			for(Tuple tuple: buffer.tupleLst){
+				int id = hash(tuple.key, M-1);
+				tuples.get(id).add(tuple);
+			}
+		}
+		
+		int totalBlocks = 0;
+		for(ArrayList<Tuple> at: tuples){
+			totalBlocks += (int) Math.ceil(((double) at.size())/blockFactor);
+		}
+		return totalBlocks;
 	}
 	
 	/**
@@ -270,9 +303,19 @@ public class Algorithms {
 		numTuples = relRS.getNumTuples();
 		System.out.println("Relation RelRS contains " + numTuples + " tuples.");
 
+		int theoreticalIO = (algo.getTotalBlocksAllBuckets(relR, Setting.memorySize, Setting.blockFactor) + 
+			algo.getTotalBlocksAllBuckets(relS, Setting.memorySize, Setting.blockFactor)) * 2 + 
+			relR.getNumBlocks() + relS.getNumBlocks();
+
+		if(theoreticalIO == numIO){
+			System.out.println("numIO correct!");
+		} else {
+			System.out.println("numIO wrong!");
+		}
+
 		/*Print the relation */
-		System.out.println("---------Printing relation relRS----------");
-		relRS.printRelation(true, true);
+		// System.out.println("---------Printing relation relRS----------");
+		// relRS.printRelation(true, true);
 		// select * FROM relr JOIN rels using (key) ORDER BY key;
 
 		// Insert your test cases here!	
